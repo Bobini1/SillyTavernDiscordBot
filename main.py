@@ -96,5 +96,10 @@ async def ctn(ctx):
             assistant_message = assistant_message[:1997] + "..."
         await ctx.send(assistant_message)
 
+@bot.command()
+async def newc(ctx):
+    """Send '/newchat' to the llm"""
+    async with ctx.typing():
+        assistant_message = send("/newchat")
 
 bot.run(os.environ['DISCORD_TOKEN'])
