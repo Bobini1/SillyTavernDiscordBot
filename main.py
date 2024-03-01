@@ -123,5 +123,6 @@ async def setbot(ctx, new_name):
     update_character_name(new_name)
     CHARACTER_NAME = get_character_name()
     await ctx.send(f"Personality set to: {CHARACTER_NAME}")
+    print(f"CHARACTER_NAME updated: {CHARACTER_NAME}")
 
 bot.run(os.environ['DISCORD_TOKEN'])
