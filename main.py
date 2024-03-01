@@ -44,6 +44,10 @@ def select_character():
     character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
     character_management.click()
     time.sleep(1)
+    #find div with title Select/Create Characters
+    characters = s.find_element(By.XPATH, "//div[@title='Select/Create Characters']")
+    characters.click()
+    time.sleep(1)
     # find elements with class name "character_select"
     characters = s.find_elements(By.CLASS_NAME, "character_select")
     print("LOADED BOTS:")
@@ -54,6 +58,9 @@ def select_character():
         if ch_name == CHARACTER_NAME:
             character.click()
     print()
+    # close the drawer
+    character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
+    character_management.click()
 
 select_character()
 
@@ -130,6 +137,7 @@ async def setbot(ctx, new_name):
     global CHARACTER_NAME
     update_character_name(new_name)
     CHARACTER_NAME = get_character_name()
+    select_character()
     await ctx.send(f"Personality set to: {CHARACTER_NAME}")
     for guild in bot.guilds:
         await guild.me.edit(nick=CHARACTER_NAME)
