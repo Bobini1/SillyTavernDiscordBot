@@ -38,20 +38,24 @@ s = webdriver.Chrome()
 s.maximize_window()
 s.get("http://127.0.0.1:8000")
 time.sleep(1)
-# find div with title Character Management
-character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
-character_management.click()
-time.sleep(1)
-# find elements with class name "character_select"
-characters = s.find_elements(By.CLASS_NAME, "character_select")
-print("LOADED BOTS:")
-# pick the one where there exists a span with ch_name = CHARACTER_NAME
-for character in characters[:-1]:
-    ch_name = character.find_element(By.CLASS_NAME, "ch_name").text
-    print("-- " + ch_name)
-    if ch_name == CHARACTER_NAME:
-        character.click()
-print()
+
+def select_character():
+    # find div with title Character Management
+    character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
+    character_management.click()
+    time.sleep(1)
+    # find elements with class name "character_select"
+    characters = s.find_elements(By.CLASS_NAME, "character_select")
+    print("LOADED BOTS:")
+    # pick the one where there exists a span with ch_name = CHARACTER_NAME
+    for character in characters[:-1]:
+        ch_name = character.find_element(By.CLASS_NAME, "ch_name").text
+        print("-- " + ch_name)
+        if ch_name == CHARACTER_NAME:
+            character.click()
+    print()
+
+select_character()
 
 # find the input field, id send_textarea
 input_field = s.find_element(By.ID, "send_textarea")
