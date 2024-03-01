@@ -1,5 +1,4 @@
 .venv/
 .idea/
 .vscode/
-.env.example
 .env
