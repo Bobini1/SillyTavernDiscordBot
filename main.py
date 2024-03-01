@@ -1,17 +1,31 @@
 import time
-
 import discord
 import dotenv
 from discord.ext import commands
 import os
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-
 from selenium.webdriver.common.by import By
+import json
 
 dotenv.load_dotenv()
 
-CHARACTER_NAME = os.environ['CHARACTER_NAME']
+# Function to read CHARACTER_NAME from JSON file
+def get_character_name():
+    with open('config.json') as json_file:
+        data = json.load(json_file)
+        return data['CHARACTER_NAME']
+
+# Function to update CHARACTER_NAME in JSON file
+def update_character_name(new_name):
+    with open('config.json', 'r+') as json_file:
+        data = json.load(json_file)
+        data['CHARACTER_NAME'] = new_name
+        json_file.seek(0)
+        json.dump(data, json_file, indent=4)
+        json_file.truncate()
+
+CHARACTER_NAME = get_character_name()
 
 intents = discord.Intents.default()
 intents.members = True
@@ -101,5 +115,13 @@ async def newc(ctx):
     """Send '/newchat' to the llm"""
     async with ctx.typing():
         assistant_message = send("/newchat")
+
+@bot.command()
+async def setbot(ctx, new_name):
+    """Set the CHARACTER_NAME"""
+    global CHARACTER_NAME
+    update_character_name(new_name)
+    CHARACTER_NAME = get_character_name()
+    await ctx.send(f"Personality set to: {CHARACTER_NAME}")
 
 bot.run(os.environ['DISCORD_TOKEN'])
