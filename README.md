@@ -2,7 +2,7 @@
 ## How to run
 Rename .env.example to .env and add the API token of your Discord bot (https://discord.com/developers/applications).
 
-Change the `CHARACTER_NAME` to the character you want to chat with. The Discord bot will react to this name.
+Change the `CHARACTER_NAME` in config.json to the character you want to chat with. The Discord bot will react to this name.
 
 Install dependencies with `pip install -r requirements.txt`
 
