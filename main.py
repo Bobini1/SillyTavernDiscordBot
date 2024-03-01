@@ -120,13 +120,19 @@ async def newc(ctx):
     async with ctx.typing():
         assistant_message = send("/newchat")
 
+def is_admin(ctx):
+    return ctx.author.guild_permissions.administrator
+
 @bot.command()
+@commands.check(is_admin)
 async def setbot(ctx, new_name):
     """Set the CHARACTER_NAME"""
     global CHARACTER_NAME
     update_character_name(new_name)
     CHARACTER_NAME = get_character_name()
     await ctx.send(f"Personality set to: {CHARACTER_NAME}")
+    for guild in bot.guilds:
+        await guild.me.edit(nick=CHARACTER_NAME)
     print(f"CHARACTER_NAME updated: {CHARACTER_NAME}")
 
 bot.run(os.environ['DISCORD_TOKEN'])
