@@ -132,7 +132,7 @@ def is_admin(ctx):
 
 @bot.command()
 @commands.check(is_admin)
-async def setbot(ctx, new_name):
+async def setbot(ctx, *, new_name):
     """Set the CHARACTER_NAME"""
     global CHARACTER_NAME
     update_character_name(new_name)
