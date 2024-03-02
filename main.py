@@ -110,12 +110,10 @@ async def get_avatar():
     # Get filepath
     current_dir = os.path.dirname(os.path.abspath(__file__))
     avatar_path = os.path.join(current_dir, 'thumbnail.png')
-    print("File path:", avatar_path)  # Print file path
     try:
         # Open and read the image file
         with open(avatar_path, 'rb') as f:
             avatar_image = f.read()
-            print("Image size:", len(avatar_image))  # Print size of the image data
         # Change the bot's avatar
         await bot.user.edit(avatar=avatar_image)
         os.remove(avatar_path)
