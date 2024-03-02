@@ -9,6 +9,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from selenium.webdriver.common.by import By
 
+JS_ADD_TEXT_TO_INPUT = """
+  var elm = arguments[0], txt = arguments[1];
+  elm.value += txt;
+  elm.dispatchEvent(new Event('change'));
+  """
+
 dotenv.load_dotenv()
 
 CHARACTER_NAME = os.environ['CHARACTER_NAME']
@@ -46,9 +52,7 @@ input_field = s.find_element(By.ID, "send_textarea")
 def send(user_message, edit=False):
     # find the mesid of element with class last_mes
     mesid = int(s.find_elements(By.CLASS_NAME, "last_mes")[-1].get_attribute("mesid"))
-    # get rid of newlines in message
-    user_message = user_message.replace("\n", " ")
-    input_field.send_keys(user_message)
+    s.execute_script(JS_ADD_TEXT_TO_INPUT, input_field, user_message)
     input_field.send_keys("\n")
     message_to_send = mesid if edit else mesid + 2
     # wait until mesid of last_mes is mesid+2
