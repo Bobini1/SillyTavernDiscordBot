@@ -46,6 +46,15 @@ s.maximize_window()
 s.get("http://127.0.0.1:8000")
 time.sleep(1)
 
+def connect_api():
+    api_connections = s.find_element(By.XPATH, "//div[@title='API Connections']")
+    api_connections.click()
+    time.sleep(1)
+    connect_button = s.find_element(By.ID, "api_button_textgenerationwebui")
+    connect_button.click()
+
+connect_api()
+
 def select_character():
     # find div with title Character Management
     character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
