@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import json
+import requests
 
 JS_ADD_TEXT_TO_INPUT = """
   var elm = arguments[0], txt = arguments[1];
@@ -93,6 +94,19 @@ def send(user_message, edit=False):
     return response
 
 async def get_avatar():
+    # Find the image element on the webpage using XPath
+    xpath = f'//img[contains(@src, "{CHARACTER_NAME}.png")]'
+    image_element = s.find_element(By.XPATH, xpath)
+    # Get the source (URL) of the image
+    image_url = image_element.get_attribute("src")
+    # Get the directory of the script
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    # Create the path for saving the image
+    image_filename = os.path.basename(image_url)
+    save_path = os.path.join(script_directory, 'thumbnail.png')
+    # Download the image
+    with open(save_path, "wb") as f:
+        f.write(requests.get(image_url).content)
     # Get filepath
     current_dir = os.path.dirname(os.path.abspath(__file__))
     avatar_path = os.path.join(current_dir, 'thumbnail.png')
@@ -104,6 +118,7 @@ async def get_avatar():
             print("Image size:", len(avatar_image))  # Print size of the image data
         # Change the bot's avatar
         await bot.user.edit(avatar=avatar_image)
+        os.remove(avatar_path)
     except FileNotFoundError:
         print("File 'thumbnail.png' not found.")
     except Exception as e:
