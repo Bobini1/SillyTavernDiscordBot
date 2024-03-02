@@ -1,13 +1,12 @@
 import time
-
 import discord
 import dotenv
 from discord.ext import commands
 import os
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-
 from selenium.webdriver.common.by import By
+import json
 
 JS_ADD_TEXT_TO_INPUT = """
   var elm = arguments[0], txt = arguments[1];
@@ -17,7 +16,22 @@ JS_ADD_TEXT_TO_INPUT = """
 
 dotenv.load_dotenv()
 
-CHARACTER_NAME = os.environ['CHARACTER_NAME']
+# Function to read CHARACTER_NAME from JSON file
+def get_character_name():
+    with open('config.json') as json_file:
+        data = json.load(json_file)
+        return data['CHARACTER_NAME']
+
+# Function to update CHARACTER_NAME in JSON file
+def update_character_name(new_name):
+    with open('config.json', 'r+') as json_file:
+        data = json.load(json_file)
+        data['CHARACTER_NAME'] = new_name
+        json_file.seek(0)
+        json.dump(data, json_file, indent=4)
+        json_file.truncate()
+
+CHARACTER_NAME = get_character_name()
 
 intents = discord.Intents.default()
 intents.members = True
@@ -30,20 +44,31 @@ s = webdriver.Chrome()
 s.maximize_window()
 s.get("http://127.0.0.1:8000")
 time.sleep(1)
-# find div with title Character Management
-character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
-character_management.click()
-time.sleep(1)
-# find elements with class name "character_select"
-characters = s.find_elements(By.CLASS_NAME, "character_select")
-print("LOADED BOTS:")
-# pick the one where there exists a span with ch_name = CHARACTER_NAME
-for character in characters[:-1]:
-    ch_name = character.find_element(By.CLASS_NAME, "ch_name").text
-    print("-- " + ch_name)
-    if ch_name == CHARACTER_NAME:
-        character.click()
-print()
+
+def select_character():
+    # find div with title Character Management
+    character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
+    character_management.click()
+    time.sleep(1)
+    #find div with title Select/Create Characters
+    characters = s.find_element(By.XPATH, "//div[@title='Select/Create Characters']")
+    characters.click()
+    time.sleep(1)
+    # find elements with class name "character_select"
+    characters = s.find_elements(By.CLASS_NAME, "character_select")
+    print("LOADED BOTS:")
+    # pick the one where there exists a span with ch_name = CHARACTER_NAME
+    for character in characters[:-1]:
+        ch_name = character.find_element(By.CLASS_NAME, "ch_name").text
+        print("-- " + ch_name)
+        if ch_name == CHARACTER_NAME:
+            character.click()
+    print()
+    # close the drawer
+    character_management = s.find_element(By.XPATH, "//div[@title='Character Management']")
+    character_management.click()
+
+select_character()
 
 # find the input field, id send_textarea
 input_field = s.find_element(By.ID, "send_textarea")
@@ -67,6 +92,22 @@ def send(user_message, edit=False):
     response = "\n\n".join([r.text for r in response])
     return response
 
+async def get_avatar():
+    # Get filepath
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    avatar_path = os.path.join(current_dir, 'thumbnail.png')
+    print("File path:", avatar_path)  # Print file path
+    try:
+        # Open and read the image file
+        with open(avatar_path, 'rb') as f:
+            avatar_image = f.read()
+            print("Image size:", len(avatar_image))  # Print size of the image data
+        # Change the bot's avatar
+        await bot.user.edit(avatar=avatar_image)
+    except FileNotFoundError:
+        print("File 'thumbnail.png' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 @bot.event
 async def on_ready():
@@ -100,5 +141,27 @@ async def ctn(ctx):
             assistant_message = assistant_message[:1997] + "..."
         await ctx.send(assistant_message)
 
+@bot.command()
+async def newc(ctx):
+    """Send '/newchat' to the llm"""
+    async with ctx.typing():
+        assistant_message = send("/newchat")
+
+def is_admin(ctx):
+    return ctx.author.guild_permissions.administrator
+
+@bot.command()
+@commands.check(is_admin)
+async def setbot(ctx, *, new_name):
+    """Set the CHARACTER_NAME"""
+    global CHARACTER_NAME
+    update_character_name(new_name)
+    CHARACTER_NAME = get_character_name()
+    select_character()
+    await ctx.send(f"Personality set to: {CHARACTER_NAME}")
+    for guild in bot.guilds:
+        await guild.me.edit(nick=CHARACTER_NAME)
+    await get_avatar()
+    print(f"CHARACTER_NAME updated: {CHARACTER_NAME}")
 
 bot.run(os.environ['DISCORD_TOKEN'])
