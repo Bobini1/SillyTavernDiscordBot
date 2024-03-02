@@ -159,6 +159,17 @@ async def newc(ctx):
     """Send '/newchat' to the llm"""
     async with ctx.typing():
         send("/newchat")
+#todo send the opening message to discord
+
+@bot.command()
+async def swipe(ctx):
+    # js to click on swipe button
+    js_script = """
+    var button = document.querySelector('.swipe_right.fa-solid.fa-chevron-right',':before');
+    button.click();
+    """
+    s.execute_script(js_script)
+#todo send the message generate by the swipe    
 
 def is_admin(ctx):
     return ctx.author.guild_permissions.administrator
