@@ -158,7 +158,7 @@ async def ctn(ctx):
 async def newc(ctx):
     """Send '/newchat' to the llm"""
     async with ctx.typing():
-        assistant_message = send("/newchat")
+        send("/newchat")
 
 def is_admin(ctx):
     return ctx.author.guild_permissions.administrator
