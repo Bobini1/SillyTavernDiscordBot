@@ -85,6 +85,12 @@ select_character()
 # find the input field, id send_textarea
 input_field = s.find_element(By.ID, "send_textarea")
 
+def markdown_handling(text):
+        # Replace <em> tags with asterisks
+        text = re.sub(r'<em>(.*?)</em>', r'*\1*', text)
+        # Remove <q> tags
+        text = re.sub(r'<q>(.*?)</q>', r'\1', text)
+        return text   
 
 def send(user_message, edit=False):
     # find the mesid of element with class last_mes
@@ -100,13 +106,7 @@ def send(user_message, edit=False):
     # wait until its style becomes display: flex
     WebDriverWait(s, 120).until(lambda s: notif_div.value_of_css_property("display") == "flex")
     # find a <p> inside it
-    paragraphs = last_message.find_elements(By.TAG_NAME, "p")
-    def markdown_handling(text):
-        # Replace <em> tags with asterisks
-        text = re.sub(r'<em>(.*?)</em>', r'*\1*', text)
-        # Remove <q> tags
-        text = re.sub(r'<q>(.*?)</q>', r'\1', text)
-        return text    
+    paragraphs = last_message.find_elements(By.TAG_NAME, "p") 
     response = "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in paragraphs])
     return response
 
