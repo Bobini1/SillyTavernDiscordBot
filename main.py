@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import json
 import requests
+import re
 
 JS_ADD_TEXT_TO_INPUT = """
   var elm = arguments[0], txt = arguments[1];
@@ -98,8 +99,14 @@ def send(user_message, edit=False):
     # wait until its style becomes display: flex
     WebDriverWait(s, 120).until(lambda s: notif_div.value_of_css_property("display") == "flex")
     # find a <p> inside it
-    response = last_message.find_elements(By.TAG_NAME, "p")
-    response = "\n\n".join([r.text for r in response])
+    paragraphs = last_message.find_elements(By.TAG_NAME, "p")
+    def markdown_handling(text):
+        # Replace <em> tags with asterisks
+        text = re.sub(r'<em>(.*?)</em>', r'*\1*', text)
+        # Remove <q> tags
+        text = re.sub(r'<q>(.*?)</q>', r'\1', text)
+        return text    
+    response = "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in paragraphs])
     return response
 
 async def get_avatar():
