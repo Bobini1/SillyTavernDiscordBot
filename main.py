@@ -90,7 +90,7 @@ def send(user_message, edit=False):
     # find the mesid of element with class last_mes
     mesid = int(s.find_elements(By.CLASS_NAME, "last_mes")[-1].get_attribute("mesid"))
     s.execute_script(JS_ADD_TEXT_TO_INPUT, input_field, user_message)
-    input_field.send_keys("\n")
+    input_field.send_keys("\n", Keys.ENTER)
     message_to_send = mesid if edit else mesid + 2
     # wait until mesid of last_mes is mesid+2
     WebDriverWait(s, 120).until(lambda s: int(s.find_element(By.CLASS_NAME, "last_mes").get_attribute("mesid")) == message_to_send)
