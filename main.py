@@ -6,6 +6,7 @@ import os
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 import json
 import requests
 import re
@@ -200,8 +201,15 @@ async def ctn(ctx):
 async def newc(ctx):
     """Send '/newchat' to the llm"""
     async with ctx.typing():
-        send("/newchat")
-#todo send the opening message to discord
+        input_field.send_keys("/newchat", Keys.ENTER)
+        time.sleep(1)
+        assistant_message_element = s.find_element(By.CLASS_NAME, "last_mes")
+        assistant_message = assistant_message_element.find_element(By.TAG_NAME, "p").text
+        print("ASSISTANT: " + assistant_message)
+        # truncate
+        if len(assistant_message) > 2000:
+            assistant_message = assistant_message[:1997] + "..."
+        await ctx.send(assistant_message)
 
 @bot.command()
 async def swipe(ctx):
