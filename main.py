@@ -158,8 +158,8 @@ async def on_message(message):
                 if len(assistant_message) > 2000:
                     assistant_message = assistant_message[:1997] + "..."
                 await message.channel.send(assistant_message)
-            return  # Exit the function after handling the reply       
-    # Check if bot's name has been mentioned directly or replied to
+            return       
+    # Check if bot's name has been mentioned directly
     if (CHARACTER_NAME.lower() in message.content.lower() or bot.user.mentioned_in(message)) and not message.content.startswith("?"):
         print("USER: " + message.content)
         # Call the assistant and send the response
@@ -171,7 +171,7 @@ async def on_message(message):
             if len(assistant_message) > 2000:
                 assistant_message = assistant_message[:1997] + "..."
             await message.channel.send(assistant_message)
-        return  # Exit the function after handling the mention
+        return
     # Store the message as sent by the bot
     if message.author == bot.user:
         sent_messages[message.id] = message
