@@ -136,20 +136,33 @@ async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
 
+sent_messages = {}
 
 @bot.event
 async def on_message(message):
-    if CHARACTER_NAME.lower() in message.content.lower() and not message.content.startswith("?") and message.author != bot.user:
+    await bot.process_commands(message)   
+    # Ignore messages sent by the bot
+    if message.author == bot.user:
+        return
+    # Check if the message is a reply to a message sent by the bot
+    if message.reference and message.reference.message_id in sent_messages:
+        original_message = sent_messages[message.reference.message_id]
+        if original_message.author == bot.user:
+            print("USER: " + message.content)
+    # Check if bot's name has been mentioned
+    if CHARACTER_NAME.lower() in message.content.lower() and not message.content.startswith("?"):
         print("USER: " + message.content)
-        ctx = await bot.get_context(message)
-        async with ctx.typing():
-            assistant_message = send(message.content)
-            print("ASSISTANT: " + assistant_message)
-            # truncate
-            if len(assistant_message) > 2000:
-                assistant_message = assistant_message[:1997] + "..."
-            await message.channel.send(assistant_message)
-    await bot.process_commands(message)
+    # Call the assistant and send the response
+    ctx = await bot.get_context(message)
+    async with ctx.typing():
+        assistant_message = send(message.content)
+        print("ASSISTANT: " + assistant_message)
+        # Truncate if necessary
+        if len(assistant_message) > 2000:
+            assistant_message = assistant_message[:1997] + "..."
+        sent_message = await message.channel.send(assistant_message)
+        # Track the sent message
+        sent_messages[sent_message.id] = sent_message
 
 
 @bot.command()
