@@ -203,13 +203,13 @@ async def newc(ctx):
     async with ctx.typing():
         input_field.send_keys("/newchat", Keys.ENTER)
         time.sleep(1)
-        assistant_message_element = s.find_element(By.CLASS_NAME, "last_mes")
-        assistant_message = assistant_message_element.find_element(By.TAG_NAME, "p").text
-        print("ASSISTANT: " + assistant_message)
+        assistant_message_elements = s.find_element(By.CLASS_NAME, "last_mes").find_elements(By.TAG_NAME, "p")
+        assistant_messages = "\n\n".join([message.text for message in assistant_message_elements])
+        print("ASSISTANT: " + assistant_messages)
         # truncate
-        if len(assistant_message) > 2000:
-            assistant_message = assistant_message[:1997] + "..."
-        await ctx.send(assistant_message)
+        if len(assistant_messages) > 2000:
+            assistant_messages = assistant_messages[:1997] + "..."
+        await ctx.send(assistant_messages)
 
 @bot.command()
 async def swipe(ctx):
