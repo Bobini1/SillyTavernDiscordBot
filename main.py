@@ -39,7 +39,7 @@ CHARACTER_NAME = get_character_name()
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-bot = commands.Bot(command_prefix='?', description="""Bridging the gap between SillyTavern and Discord!
+bot = commands.Bot(command_prefix='?', description="""🌟 Bridging the gap between SillyTavern and Discord! 🌟
 Contribute here: https://github.com/Bobini1/SillyTavernDiscordBot""", intents=intents)
 
 print("BOT NAME: " + CHARACTER_NAME)
