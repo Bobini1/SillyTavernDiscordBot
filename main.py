@@ -205,7 +205,7 @@ async def ctn(ctx):
         if len(assistant_messages) > 2000:
             assistant_messages = assistant_messages[:1997] + "..."
         # Retrieve the bot's message from the channel's history
-        async for message in ctx.channel.history(limit=10):
+        async for message in ctx.channel.history(limit=50):
             if message.author == bot.user:
                 # Edit the bot's message with the new content
                 await message.edit(content=assistant_messages)
@@ -229,13 +229,32 @@ async def newc(ctx):
 
 @bot.command()
 async def swipe(ctx):
+    """Send '/swipe' to the llm"""
     # js to click on swipe button
     js_script = """
     var button = document.querySelector('.swipe_right.fa-solid.fa-chevron-right',':before');
     button.click();
     """
     s.execute_script(js_script)
-#todo send the message generate by the swipe    
+    time.sleep(1)
+    last_message = s.find_elements(By.CLASS_NAME, "last_mes")[-1]
+    notif_div = last_message.find_element(By.CLASS_NAME, "swipe_right")
+    # Wait until its style becomes display: flex
+    WebDriverWait(s, 120).until(lambda s: notif_div.value_of_css_property("display") == "flex")
+    assistant_message_elements = s.find_element(By.CLASS_NAME, "last_mes").find_elements(By.TAG_NAME, "p")
+    assistant_messages= "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in assistant_message_elements])
+    print("ASSISTANT: " + assistant_messages)
+    # Truncate
+    if len(assistant_messages) > 2000:
+            assistant_messages = assistant_messages[:1997] + "..."
+    # Retrieve the bot's message from the channel's history
+    async for message in ctx.channel.history(limit=50):
+            if message.author == bot.user:
+                # Edit the bot's message with the new content
+                await message.edit(content=assistant_messages)
+                return
+    # If no previous message found, send a new one
+    await ctx.send(assistant_messages) 
 
 def is_admin(ctx):
     return ctx.author.guild_permissions.administrator
