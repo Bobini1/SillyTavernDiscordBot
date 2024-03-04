@@ -197,9 +197,8 @@ async def on_message(message):
 def is_admin(ctx):
     return ctx.author.guild_permissions.administrator
 
-@bot.command()
+@bot.command(name='ctn', help='⏩ Send /continue to SillyTavern, the LLM will resume typing if it was cut off and edit its last message.', brief='⏩ Send /continue to SillyTavern')
 async def ctn(ctx):
-    """⏩ Send '/continue' to SillyTavern, the LLM will resume typing if it was cut off and edit its last message."""
     async with ctx.typing():
         input_field.send_keys("/continue", Keys.ENTER)
         time.sleep(1)
@@ -222,9 +221,8 @@ async def ctn(ctx):
         # If no previous message found, send a new one
         await ctx.send(assistant_messages)
 
-@bot.command()
+@bot.command(name='swipe', help='🔁 Swipe in SillyTavern, the llm will type a new response to the previous prompt and edit its last message.', brief='🔁 Swipe in SillyTavern')
 async def swipe(ctx):
-    """🔁 Swipe in SillyTavern, the llm will type a new response to the previous prompt and edit its last message."""
     # js to click on swipe button
     js_script = """
     var button = document.querySelector('.swipe_right.fa-solid.fa-chevron-right',':before');
@@ -269,10 +267,9 @@ async def on_reaction_add(reaction, user):
                 await ctx.invoke(bot.get_command('swipe'))
                 break 
 
-@bot.command()
+@bot.command(name='setbot', help='Set which bot to talk to, must match bot names in SillyTavern. Admin only.', brief='Set which bot to talk to')
 @commands.check(is_admin)
 async def setbot(ctx, *, new_name):
-    """Set which bot to talk to, must match bot names in SillyTavern. Admin only."""
     global CHARACTER_NAME
     update_character_name(new_name)
     CHARACTER_NAME = get_character_name()
@@ -283,10 +280,9 @@ async def setbot(ctx, *, new_name):
     await get_avatar()
     print(f"CHARACTER_NAME updated: {CHARACTER_NAME}")
 
-@bot.command()
+@bot.command(name='newchat', help='Send /newchat to SillyTavern, start a fresh chat with the selected character. Admin only.', brief='Send /newchat to SillyTavern')
 @commands.check(is_admin)
 async def newchat(ctx):
-    """Send '/newchat' to SillyTavern, start a fresh chat with the selected character. Admin only."""
     async with ctx.typing():
         input_field.send_keys("/newchat", Keys.ENTER)
         time.sleep(1)
