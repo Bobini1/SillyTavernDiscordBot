@@ -199,7 +199,7 @@ def is_admin(ctx):
 
 @bot.command()
 async def ctn(ctx):
-    """Send '/continue' to SillyTavern, the LLM will resume typing if it was cut off and edit its last message."""
+    """⏩ Send '/continue' to SillyTavern, the LLM will resume typing if it was cut off and edit its last message."""
     async with ctx.typing():
         input_field.send_keys("/continue", Keys.ENTER)
         time.sleep(1)
@@ -224,7 +224,7 @@ async def ctn(ctx):
 
 @bot.command()
 async def swipe(ctx):
-    """Swipe in SillyTavern, the llm will type a new response to the previous prompt and edit its last message."""
+    """🔁 Swipe in SillyTavern, the llm will type a new response to the previous prompt and edit its last message."""
     # js to click on swipe button
     js_script = """
     var button = document.querySelector('.swipe_right.fa-solid.fa-chevron-right',':before');
