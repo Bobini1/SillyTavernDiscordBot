@@ -5,7 +5,6 @@ from discord.ext import commands
 import os
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import json
@@ -96,7 +95,6 @@ def markdown_handling(text):
     # Remove <q> tags
     text = re.sub(r'<q>(.*?)</q>', r'\1', text)
     return text
-
 
 def send(user_message, edit=False):
     # find the mesid of element with class last_mes
@@ -196,12 +194,10 @@ async def ctn(ctx):
     async with ctx.typing():
         input_field.send_keys("/continue", Keys.ENTER)
         time.sleep(1)
-        print("Before WebDriverWait")
         last_message = s.find_elements(By.CLASS_NAME, "last_mes")[-1]
         notif_div = last_message.find_element(By.CLASS_NAME, "swipe_right")
         # wait until its style becomes display: flex
         WebDriverWait(s, 120).until(lambda s: notif_div.value_of_css_property("display") == "flex")
-        print("After WebDriverWait")
         assistant_message_elements = s.find_element(By.CLASS_NAME, "last_mes").find_elements(By.TAG_NAME, "p")
         assistant_messages= "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in assistant_message_elements])
         print("ASSISTANT: " + assistant_messages)
