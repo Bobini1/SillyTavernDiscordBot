@@ -89,10 +89,13 @@ def markdown_handling(text):
     # Replace <em> tags with asterisks
     text = re.sub(r'<em>(.*?)</em>', r'*\1*', text)
     # Replace <strong> tags with double asterisks
-    text = re.sub(r'<strong>(.*?)</strong>', r'**\1*', text)
+    text = re.sub(r'<strong>(.*?)</strong>', r'**\1**', text)
+    # Add two asterisks to the right of any word wrapped with three asterisks on each side
+    text = re.sub(r'\*{3}(\w+)\*{3}', r'***\1*', text)
     # Remove <q> tags
     text = re.sub(r'<q>(.*?)</q>', r'\1', text)
     return text
+
 
 def send(user_message, edit=False):
     # find the mesid of element with class last_mes
