@@ -193,7 +193,7 @@ def is_admin(ctx):
     return ctx.author.guild_permissions.administrator
 
 @bot.command()
-async def cnt(ctx):
+async def ctn(ctx):
     """Send '/continue' to SillyTavern, the LLM will resume typing if it was cut off and edit its last message."""
     async with ctx.typing():
         input_field.send_keys("/continue", Keys.ENTER)
