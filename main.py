@@ -150,6 +150,7 @@ async def on_ready():
     print('------')
 
 sent_messages = {}
+emojis = ["⏩", "🔁"]
 
 @bot.event
 async def on_message(message):
@@ -170,7 +171,9 @@ async def on_message(message):
                 # Truncate if necessary
                 if len(assistant_message) > 2000:
                     assistant_message = assistant_message[:1997] + "..."
-                await message.channel.send(assistant_message)
+                sent_message = await message.channel.send(assistant_message)
+                for emoji in emojis:
+                    await sent_message.add_reaction(emoji)
             return       
     # Check if bot's name has been mentioned directly
     if (CHARACTER_NAME.lower() in message.content.lower() or bot.user.mentioned_in(message)) and not message.content.startswith("?"):
@@ -183,7 +186,9 @@ async def on_message(message):
             # Truncate if necessary
             if len(assistant_message) > 2000:
                 assistant_message = assistant_message[:1997] + "..."
-            await message.channel.send(assistant_message)
+            sent_message = await message.channel.send(assistant_message)
+            for emoji in emojis:
+                await sent_message.add_reaction(emoji)
         return
     # Store the message as sent by the bot
     if message.author == bot.user:
@@ -245,6 +250,24 @@ async def swipe(ctx):
                 return
     # If no previous message found, send a new one
     await ctx.send(assistant_messages) 
+
+# Invoke commands via emoji reacts
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user.bot:
+        return   
+    if str(reaction.emoji) == "⏩":
+        async for message in reaction.message.channel.history(limit=50):
+            if message.author == bot.user:
+                ctx = await bot.get_context(message)
+                await ctx.invoke(bot.get_command('ctn'))
+                break 
+    if str(reaction.emoji) == "🔁":
+        async for message in reaction.message.channel.history(limit=50):
+            if message.author == bot.user:
+                ctx = await bot.get_context(message)
+                await ctx.invoke(bot.get_command('swipe'))
+                break 
 
 @bot.command()
 @commands.check(is_admin)
