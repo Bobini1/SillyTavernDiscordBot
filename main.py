@@ -86,11 +86,13 @@ select_character()
 input_field = s.find_element(By.ID, "send_textarea")
 
 def markdown_handling(text):
-        # Replace <em> tags with asterisks
-        text = re.sub(r'<em>(.*?)</em>', r'*\1*', text)
-        # Remove <q> tags
-        text = re.sub(r'<q>(.*?)</q>', r'\1', text)
-        return text   
+    # Replace <em> tags with asterisks
+    text = re.sub(r'<em>(.*?)</em>', r'*\1*', text)
+    # Replace <strong> tags with double asterisks
+    text = re.sub(r'<strong>(.*?)</strong>', r'**\1*', text)
+    # Remove <q> tags
+    text = re.sub(r'<q>(.*?)</q>', r'\1', text)
+    return text
 
 def send(user_message, edit=False):
     # find the mesid of element with class last_mes
@@ -184,18 +186,22 @@ async def on_message(message):
     if message.author == bot.user:
         sent_messages[message.id] = message
 
-
-
 @bot.command()
 async def ctn(ctx):
     """Send '/continue' to the llm"""
     async with ctx.typing():
-        assistant_message = send("/continue", edit=True)
-        print("ASSISTANT: " + assistant_message)
+        input_field.send_keys("/continue", Keys.ENTER)
+        time.sleep(1)
+        assistant_message_elements = s.find_element(By.CLASS_NAME, "last_mes").find_elements(By.TAG_NAME, "p")
+        #notif_div = assistant_message_elements.find_element(By.CLASS_NAME, "swipe_right")
+        #WebDriverWait(s, 120).until(lambda s: notif_div.value_of_css_property("display") == "flex")
+        assistant_messages= "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in assistant_message_elements])
+        print("ASSISTANT: " + assistant_messages)
         # truncate
-        if len(assistant_message) > 2000:
-            assistant_message = assistant_message[:1997] + "..."
-        await ctx.send(assistant_message)
+        if len(assistant_messages) > 2000:
+            assistant_messages = assistant_messages[:1997] + "..."
+        msg = await ctx.send(assistant_messages)
+        await msg.edit(content=assistant_messages)
 
 @bot.command()
 async def newc(ctx):
@@ -204,7 +210,7 @@ async def newc(ctx):
         input_field.send_keys("/newchat", Keys.ENTER)
         time.sleep(1)
         assistant_message_elements = s.find_element(By.CLASS_NAME, "last_mes").find_elements(By.TAG_NAME, "p")
-        assistant_messages = "\n\n".join([message.text for message in assistant_message_elements])
+        assistant_messages = "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in assistant_message_elements])
         print("ASSISTANT: " + assistant_messages)
         # truncate
         if len(assistant_messages) > 2000:
