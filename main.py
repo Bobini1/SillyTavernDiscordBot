@@ -39,7 +39,8 @@ CHARACTER_NAME = get_character_name()
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-bot = commands.Bot(command_prefix='?', description="An LLM bot!!", intents=intents)
+bot = commands.Bot(command_prefix='?', description="""Bridging the gap between SillyTavern and Discord!
+Contribute here: https://github.com/Bobini1/SillyTavernDiscordBot""", intents=intents)
 
 print("BOT NAME: " + CHARACTER_NAME)
 
@@ -188,9 +189,12 @@ async def on_message(message):
     if message.author == bot.user:
         sent_messages[message.id] = message
 
+def is_admin(ctx):
+    return ctx.author.guild_permissions.administrator
+
 @bot.command()
-async def ctn(ctx):
-    """Send '/continue' to the llm"""
+async def cnt(ctx):
+    """Send '/continue' to SillyTavern, the LLM will resume typing if it was cut off and edit its last message."""
     async with ctx.typing():
         input_field.send_keys("/continue", Keys.ENTER)
         time.sleep(1)
@@ -214,22 +218,8 @@ async def ctn(ctx):
         await ctx.send(assistant_messages)
 
 @bot.command()
-async def newc(ctx):
-    """Send '/newchat' to the llm"""
-    async with ctx.typing():
-        input_field.send_keys("/newchat", Keys.ENTER)
-        time.sleep(1)
-        assistant_message_elements = s.find_element(By.CLASS_NAME, "last_mes").find_elements(By.TAG_NAME, "p")
-        assistant_messages = "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in assistant_message_elements])
-        print("ASSISTANT: " + assistant_messages)
-        # truncate
-        if len(assistant_messages) > 2000:
-            assistant_messages = assistant_messages[:1997] + "..."
-        await ctx.send(assistant_messages)
-
-@bot.command()
 async def swipe(ctx):
-    """Send '/swipe' to the llm"""
+    """Swipe in SillyTavern, the llm will type a new response to the previous prompt and edit its last message."""
     # js to click on swipe button
     js_script = """
     var button = document.querySelector('.swipe_right.fa-solid.fa-chevron-right',':before');
@@ -256,13 +246,10 @@ async def swipe(ctx):
     # If no previous message found, send a new one
     await ctx.send(assistant_messages) 
 
-def is_admin(ctx):
-    return ctx.author.guild_permissions.administrator
-
 @bot.command()
 @commands.check(is_admin)
 async def setbot(ctx, *, new_name):
-    """Set the CHARACTER_NAME"""
+    """Set which bot to talk to, must match bot names in SillyTavern. Admin only."""
     global CHARACTER_NAME
     update_character_name(new_name)
     CHARACTER_NAME = get_character_name()
@@ -272,5 +259,20 @@ async def setbot(ctx, *, new_name):
         await guild.me.edit(nick=CHARACTER_NAME)
     await get_avatar()
     print(f"CHARACTER_NAME updated: {CHARACTER_NAME}")
+
+@bot.command()
+@commands.check(is_admin)
+async def newchat(ctx):
+    """Send '/newchat' to SillyTavern, start a fresh chat with the selected character. Admin only."""
+    async with ctx.typing():
+        input_field.send_keys("/newchat", Keys.ENTER)
+        time.sleep(1)
+        assistant_message_elements = s.find_element(By.CLASS_NAME, "last_mes").find_elements(By.TAG_NAME, "p")
+        assistant_messages = "\n\n".join([markdown_handling(p.get_attribute("innerHTML")) for p in assistant_message_elements])
+        print("ASSISTANT: " + assistant_messages)
+        # truncate
+        if len(assistant_messages) > 2000:
+            assistant_messages = assistant_messages[:1997] + "..."
+        await ctx.send(assistant_messages)
 
 bot.run(os.environ['DISCORD_TOKEN'])
