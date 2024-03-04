@@ -117,8 +117,7 @@ def send(user_message, edit=False):
 
 async def get_avatar():
     # Sanitize input and find the image element on the webpage using XPath
-    CHARACTER_NAME_FORMAT = CHARACTER_NAME.replace(" ", "%20")
-    image_element = s.find_element(By.XPATH, f'//img[contains(@src, "{CHARACTER_NAME_FORMAT}.png")]')
+    image_element = s.find_element(By.XPATH, f'//img[starts-with(@src, "/thumbnail?type=avatar&file=")]')
     # Get the source (URL) of the image
     image_url = image_element.get_attribute("src")
     # Get the directory of the script
